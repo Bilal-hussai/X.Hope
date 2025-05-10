@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X.Hope</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Roboto', 'Helvetica', sans-serif;
+            background-color: #FFFFFF;
+            color: #262626;
+            min-height: 100vh;
+            overscroll-behavior: none;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0.5rem;
+        }
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 0.75rem 0;
+            color: #262626;
+        }
+        h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #262626;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 0.5rem;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 0.5rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .video-container {
+            position: relative;
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            background-color: #000;
+        }
+        .video-container video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transform: translate(-50%, -50%);
+            border-radius: 8px;
+        }
+        .thumbnail-container {
+            position: relative;
+            padding-bottom: 100%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            background-color: #000;
+            cursor: pointer;
+        }
+        .thumbnail-container video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translate(-50%, -50%);
+        }
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FFFFFF;
+            opacity: 0.7;
+            font-size: 2rem;
+            transition: opacity 0.2s ease;
+        }
+        .thumbnail-container:hover .play-icon {
+            opacity: 1;
+        }
+        .modern-btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            min-height: 48px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            width: 100%;
+            touch-action: manipulation;
+        }
+        .upload-btn {
+            background-color: #0c0c0c;
+            color: #FFFFFF;
+        }
+        .upload-btn:hover {
+            background-color: #2c2c2c;
+        }
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #8E8E8E;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            min-width: 48px;
+            min-height: 48px;
+            transition: opacity 0.2s ease;
+        }
+        .menu-btn:hover {
+            opacity: 0.8;
+        }
+        .menu {
+            display: none;
+            position: absolute;
+            top: 2.5rem;
+            right: 0.5rem;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        .menu-item {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            color: #262626;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            min-height: 48px;
+        }
+        .delete-option {
+            color: #ED4956;
+        }
+        .delete-option:hover {
+            background-color: #F8E7E9;
+        }
+        .like-btn {
+            background: none;
+            border: none;
+            color: #262626;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            min-width: 48px;
+            min-height: 48px;
+            transition: all 0.2s ease;
+        }
+        .like-btn.liked {
+            color: #ED4956;
+        }
+        .file-input-wrapper {
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+        .file-input-btn {
+            background-color: #FAFAFA;
+            border: 1px solid #DBDBDB;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            color: #262626;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 48px;
+            transition: all 0.2s ease;
+        }
+        .file-input-btn:hover {
+            background-color: #F0F0F0;
+        }
+        .file-input-hidden {
+            display: none;
+        }
+        .progress-container {
+            height: 3px;
+            background-color: #EFEFEF;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #0095F6;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+        .upload-item {
+            margin-bottom: 0.5rem;
+        }
+        .status-text {
+            font-size: 0.875rem;
+            color: #262626;
+            margin-bottom: 0.25rem;
+        }
+        .view-count, .like-count {
+            font-size: 0.75rem;
+            color: #8E8E8E;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin: 0.5rem 0;
+        }
+        .comment-section {
+            margin-top: 0.5rem;
+            border-top: 1px solid #EFEFEF;
+            padding-top: 0.5rem;
+        }
+        .comment-input {
+            width: 100%;
+            border: 1px solid #DBDBDB;
+            border-radius: 8px;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            resize: none;
+            min-height: 3rem;
+            touch-action: manipulation;
+        }
+        .comment-input:focus {
+            outline: none;
+            border-color: #0095F6;
+            box-shadow: 0 0 4px rgba(0, 149, 246, 0.3);
+        }
+        .comment-btn {
+            background: none;
+            border: none;
+            color: #0095F6;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0.2rem 0.4rem;
+            margin-left: 0.4rem;
+            border-radius: 8px;
+            min-height: 48px;
+            transition: all 0.2s ease;
+        }
+        .comment-btn:disabled {
+            color: #B0B0B0;
+            background: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .comment-btn.enabled {
+            background-color: #0077CC;
+            color: #FFFFFF;
+            font-weight: 600;
+            transform: scale(1.05);
+        }
+        .comment {
+            font-size: 0.75rem;
+            color: #262626;
+            margin-bottom: 0.25rem;
+        }
+        .comment-timestamp {
+            color: #8E8E8E;
+            font-size: 0.6875rem;
+        }
+        .view-all-comments {
+            font-size: 0.75rem;
+            color: #8E8E8E;
+            cursor: pointer;
+            margin-top: 0.25rem;
+            display: block;
+            text-decoration: none;
+        }
+        .view-all-comments:hover {
+            color: #0095F6;
+        }
+        footer {
+            padding: 0.75rem 0;
+            margin-top: 1rem;
+            text-align: center;
+            color: #8E8E8E;
+            font-size: 0.75rem;
+        }
+        .hidden {
+            display: none;
+        }
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .add-btn {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #0c0c0c, #2c2c2c);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .add-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            background: #2c2c2c;
+        }
+        .add-btn i {
+            transition: transform 0.2s ease;
+        }
+        .add-btn:hover i {
+            transform: rotate(15deg);
+        }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 1rem;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: none;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #262626;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: #8E8E8E;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            min-width: 48px;
+            min-height: 48px;
+            transition: opacity 0.2s ease;
+        }
+        .close-btn:hover {
+            opacity: 0.8;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+        @keyframes scale-up {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-like {
+            animation: scale-up 0.3s ease;
+        }
+        @media (hover: hover) {
+            .modern-btn:hover {
+                transform: scale(1.02);
+            }
+            .like-btn:hover {
+                transform: scale(1.1);
+            }
+            .comment-btn.enabled:hover {
+                background-color: #005BB5;
+            }
+        }
+        @media (min-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 1rem;
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+            h2 {
+                font-size: 1.25rem;
+            }
+            .modern-btn {
+                width: auto;
+            }
+            footer {
+                font-size: 0.875rem;
+            }
+        }
+        @media (min-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 1.5rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+        @media (max-width: 640px) {
+            .container {
+                padding: 0.4rem;
+            }
+            h1 {
+                font-size: 1.25rem;
+            }
+            h2 {
+                font-size: 0.875rem;
+            }
+            .card {
+                padding: 0.4rem;
+                margin-bottom: 0.4rem;
+            }
+            .modern-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.75rem;
+            }
+            .menu-btn {
+                font-size: 0.875rem;
+                padding: 0.4rem;
+            }
+            .menu {
+                top: 2.2rem;
+                right: 0.4rem;
+            }
+            .menu-item {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+            .file-input-btn {
+                padding: 0.5rem;
+                font-size: 0.75rem;
+            }
+            .thumbnail-container, .video-container {
+                border-radius: 6px;
+            }
+            .status-text, .view-count, .like-count, .comment, .view-all-comments {
+                font-size: 0.7rem;
+            }
+            .comment-input {
+                font-size: 0.75rem;
+                padding: 0.4rem;
+                min-height: 2.5rem;
+            }
+            .comment-btn {
+                font-size: 0.65rem;
+                padding: 0.15rem 0.35rem;
+                margin-left: 0.3rem;
+            }
+            .modal {
+                width: 90%;
+                padding: 0.75rem;
+            }
+            .modal-title {
+                font-size: 0.875rem;
+            }
+            .close-btn {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>X.Hope</h1>
+        <section>
+            <div id="videoList" class="grid" style="margin-bottom: 0.5rem;"></div>
+        </section>
+    </main>
+    <button class="add-btn" onclick="showUploadModal()" aria-label="Upload new video">
+        <i class="fas fa-plus"></i>
+    </button>
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="uploadModal">
+        <div class="modal-header">
+            <h2 class="modal-title">Upload Video</h2>
+            <button class="close-btn" onclick="hideUploadModal()" aria-label="Close upload modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="file-input-wrapper">
+            <label for="modalVideoInput" class="file-input-btn">
+                <i class="fas fa-upload"></i> Choose Videos
+            </label>
+            <input type="file" id="modalVideoInput" accept="video/*" multiple class="file-input-hidden" aria-label="Upload video files">
+        </div>
+        <div id="modalUploadProgress" class="mb-4"></div>
+        <button onclick="uploadVideo()" class="modern-btn upload-btn" aria-label="Upload videos">
+            Upload
+        </button>
+    </div>
+    <footer>
+        <p>© 2025 X.Hope. Built by ❤ Bilal Hussain</p>
+    </footer>
+    <script>
+        const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB per video
+        const MAX_STORAGE_SIZE = 1024 * 1024 * 1024; // 1GB total
+
+        let db;
+        const request = indexedDB.open('bpHubDB', 4);
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            let store;
+            if (!db.objectStoreNames.contains('videos')) {
+                store = db.createObjectStore('videos', { keyPath: 'id' });
+                store.createIndex('likes', 'likes');
+                store.createIndex('comments', 'comments');
+            } else {
+                store = event.target.transaction.objectStore('videos');
+            }
+            store.openCursor().onsuccess = function(event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const video = cursor.value;
+                    if (!video.comments) {
+                        video.comments = [];
+                        cursor.update(video);
+                    }
+                    cursor.continue();
+                }
+            };
+        };
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            loadVideos();
+        };
+        request.onerror = function() {
+            alert('Error opening database. Video storage may not work.');
+        };
+
+        async function saveVideoToDB(video) {
+            const tx = db.transaction(['videos'], 'readwrite');
+            const store = tx.objectStore('videos');
+            return new Promise((resolve, reject) => {
+                const request = store.put(video);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(new Error(`Error saving video: ${video.name}`));
+            });
+        }
+
+        async function deleteVideoFromDB(id) {
+            const tx = db.transaction(['videos'], 'readwrite');
+            const store = tx.objectStore('videos');
+            return new Promise((resolve, reject) => {
+                const request = store.delete(id);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(new Error('Error deleting video'));
+            });
+        }
+
+        async function loadVideos() {
+            const tx = db.transaction(['videos'], 'readonly');
+            const store = tx.objectStore('videos');
+            return new Promise((resolve, reject) => {
+                const request = store.getAll();
+                request.onsuccess = () => {
+                    videos = request.result;
+                    console.log('Loaded videos:', videos); // Debug: Check loaded videos
+                    renderVideos();
+                    resolve();
+                };
+                request.onerror = () => reject(new Error('Error loading videos'));
+            });
+        }
+
+        async function checkStorageLimit(videoData) {
+            const tx = db.transaction(['videos'], 'readonly');
+            const store = tx.objectStore('videos');
+            const request = store.getAll();
+            return new Promise((resolve) => {
+                request.onsuccess = () => {
+                    const currentSize = JSON.stringify(request.result).length;
+                    const newDataSize = JSON.stringify(videoData).length;
+                    resolve(currentSize + newDataSize <= MAX_STORAGE_SIZE);
+                };
+                request.onerror = () => resolve(false);
+            });
+        }
+
+        let videos = [];
+        const viewedVideos = new Set();
+        const likedVideos = new Set();
+
+        function formatNumber(num) {
+            if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+            if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+            return `${num}`;
+        }
+
+        function showUploadModal() {
+            document.getElementById('uploadModal').style.display = 'block';
+            document.getElementById('modalOverlay').style.display = 'block';
+        }
+
+        function hideUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('modalVideoInput').value = '';
+            document.getElementById('modalUploadProgress').innerHTML = '';
+        }
+
+        async function uploadVideo() {
+            const input = document.getElementById('modalVideoInput');
+            const files = Array.from(input.files);
+            if (files.length === 0 || !files.every(file => file.type.startsWith('video/'))) {
+                alert('Please select one or more valid video files.');
+                return;
+            }
+
+            const uploadProgress = document.getElementById('modalUploadProgress');
+            uploadProgress.innerHTML = '';
+            const progressBars = new Map();
+
+            files.forEach(file => {
+                const div = document.createElement('div');
+                div.className = 'upload-item';
+                div.innerHTML = `
+                    <div class="status-text">Uploading: ${file.name}</div>
+                    <div class="progress-container">
+                        <div id="progress-${file.name.replace(/[^a-zA-Z0-9]/g, '')}" class="progress-bar"></div>
+                    </div>
+                `;
+                uploadProgress.appendChild(div);
+                progressBars.set(file.name, document.getElementById(`progress-${file.name.replace(/[^a-zA-Z0-9]/g, '')}`));
+            });
+
+            for (const file of files) {
+                if (file.size > MAX_FILE_SIZE) {
+                    alert(`File "${file.name}" exceeds 1GB. Please upload a smaller video.`);
+                    continue;
+                }
+
+                const progressBar = progressBars.get(file.name);
+                progressBar.parentElement.style.display = 'block';
+
+                try {
+                    const videoData = await readFileAsDataURL(file, progressBar);
+                    const video = {
+                        id: Date.now(),
+                        name: file.name,
+                        url: videoData,
+                        views: 0,
+                        likes: 0,
+                        comments: []
+                    };
+
+                    if (!(await checkStorageLimit(video))) {
+                        alert(`Cannot upload "${file.name}": Storage limit exceeded (1GB total). Delete some videos first.`);
+                        continue;
+                    }
+
+                    await saveVideoToDB(video);
+                    videos.push(video);
+                    renderVideos();
+                } catch (error) {
+                    alert(`Error uploading "${file.name}": ${error.message}`);
+                }
+
+                progressBar.parentElement.style.display = 'none';
+            }
+
+            hideUploadModal();
+        }
+
+        function readFileAsDataURL(file, progressBar) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onprogress = function(e) {
+                    if (e.lengthComputable) {
+                        const percent = (e.loaded / e.total) * 100;
+                        progressBar.style.width = `${percent}%`;
+                    }
+                };
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = function() {
+                    reject(new Error('File reading failed'));
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function setVideoAspectRatio(videoElement, container) {
+            videoElement.addEventListener('loadedmetadata', () => {
+                const aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
+                container.style.paddingBottom = `${(1 / aspectRatio) * 100}%`;
+            });
+        }
+
+        function toggleMenu(videoId) {
+            const menu = document.getElementById(`menu-${videoId}`);
+            const isVisible = menu.style.display === 'block';
+            document.querySelectorAll('.menu').forEach(m => m.style.display = 'none');
+            menu.style.display = isVisible ? 'none' : 'block';
+        }
+
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.menu-btn') && !event.target.closest('.menu')) {
+                document.querySelectorAll('.menu').forEach(m => m.style.display = 'none');
+            }
+            if (!event.target.closest('.modal') && !event.target.closest('.add-btn') && document.getElementById('uploadModal').style.display === 'block') {
+                hideUploadModal();
+            }
+        });
+
+        function renderVideos() {
+            const videoList = document.getElementById('videoList');
+            videoList.innerHTML = '';
+            videos.forEach(video => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <button class="menu-btn" onclick="toggleMenu(${video.id})" aria-label="More options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                    <div class="menu hidden" id="menu-${video.id}">
+                        <button class="menu-item delete-option" onclick="deleteVideo(${video.id})">Delete</button>
+                    </div>
+                    <h3 class="text-sm font-medium mb-2 truncate">${video.name}</h3>
+                    <div class="thumbnail-container" onclick="playVideo(${video.id})">
+                        <video muted>
+                            <source src="${video.url}" type="video/mp4">
+                        </video>
+                        <i class="fas fa-play play-icon"></i>
+                    </div>
+                    <div class="video-container hidden" id="video-player-${video.id}">
+                        <video id="video-${video.id}" controls aria-label="Video: ${video.name}">
+                            <source src="${video.url}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="view-count">
+                        <i class="fas fa-eye"></i>
+                        <span id="views-${video.id}">${formatNumber(video.views)} views</span>
+                    </div>
+                    <div class="like-count">
+                        <button class="like-btn ${likedVideos.has(video.id) ? 'liked' : ''}" onclick="toggleLike(${video.id})" aria-label="Like video">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <span id="likes-${video.id}">${formatNumber(video.likes)} likes</span>
+                    </div>
+                    <div class="comment-section">
+                        ${(video.comments || []).slice(0, 3).map(comment => `
+                            <div class="comment">
+                                ${comment.text}
+                                <span class="comment-timestamp">${new Date(comment.timestamp).toLocaleTimeString()}</span>
+                            </div>
+                        `).join('')}
+                        ${(video.comments || []).length > 3 ? `<a class="view-all-comments" href="#" onclick="alert('View all ${(video.comments || []).length} comments')">View all ${(video.comments || []).length} comments</a>` : ''}
+                        <div style="display: flex; align-items: center;">
+                            <textarea class="comment-input" id="comment-input-${video.id}" placeholder="Add a comment..." rows="3" aria-label="Comment input"></textarea>
+                            <button class="comment-btn" onclick="postComment(${video.id})" disabled>Post</button>
+                        </div>
+                    </div>
+                `;
+                videoList.appendChild(div);
+                const videoElement = document.getElementById(`video-${video.id}`);
+                const container = document.getElementById(`video-player-${video.id}`);
+                setVideoAspectRatio(videoElement, container);
+                setupVideoControls(video.id);
+                setupCommentInput(video.id);
+            });
+        }
+
+        function playVideo(id) {
+            const thumbnail = document.querySelector(`#video-player-${id}`).parentElement.querySelector('.thumbnail-container');
+            const player = document.querySelector(`#video-player-${id}`);
+            thumbnail.classList.add('hidden');
+            player.classList.remove('hidden');
+            const video = document.getElementById(`video-${id}`);
+            video.play();
+        }
+
+        function setupVideoControls(id) {
+            const video = document.getElementById(`video-${id}`);
+            let hasViewed = false;
+            video.addEventListener('play', async () => {
+                pauseOtherVideos(id);
+                if (!hasViewed && !viewedVideos.has(id)) {
+                    hasViewed = true;
+                    viewedVideos.add(id);
+                    const videoObj = videos.find(v => v.id === id);
+                    if (videoObj) {
+                        videoObj.views += 1;
+                        console.log(`Video ${id} view count updated to: ${videoObj.views}`); // Debug: Log view update
+                        await saveVideoToDB(videoObj);
+                        const viewSpan = document.getElementById(`views-${id}`);
+                        if (viewSpan) {
+                            viewSpan.textContent = `${formatNumber(videoObj.views)} views`;
+                        } else {
+                            console.warn(`View span for video ${id} not found`); // Debug: Check if span exists
+                        }
+                    } else {
+                        console.warn(`Video object for id ${id} not found`); // Debug: Check video object
+                    }
+                }
+            });
+            video.addEventListener('ended', () => {
+                hasViewed = false;
+            });
+            video.addEventListener('pause', () => {
+                if (video.currentTime === 0 || video.ended) {
+                    hasViewed = false;
+                }
+            });
+        }
+
+        async function toggleLike(id) {
+            const videoObj = videos.find(v => v.id === id);
+            if (!videoObj) return;
+
+            const likeBtn = document.querySelector(`#likes-${id}`).previousElementSibling;
+            const likeSpan = document.getElementById(`likes-${id}`);
+            if (likedVideos.has(id)) {
+                videoObj.likes -= 1;
+                likedVideos.delete(id);
+                likeBtn.classList.remove('liked');
+            } else {
+                videoObj.likes += 1;
+                likedVideos.add(id);
+                likeBtn.classList.add('liked');
+            }
+
+            await saveVideoToDB(videoObj);
+            if (likeSpan) {
+                likeSpan.textContent = `${formatNumber(videoObj.likes)} likes`;
+                likeSpan.classList.add('animate-like');
+                setTimeout(() => likeSpan.classList.remove('animate-like'), 300);
+            }
+        }
+
+        function setupCommentInput(id) {
+            const input = document.getElementById(`comment-input-${id}`);
+            const btn = input.nextElementSibling;
+            input.addEventListener('input', () => {
+                const hasText = input.value.trim() !== '';
+                btn.disabled = !hasText;
+                if (hasText) {
+                    btn.classList.add('enabled');
+                } else {
+                    btn.classList.remove('enabled');
+                }
+            });
+        }
+
+        async function postComment(id) {
+            const input = document.getElementById(`comment-input-${id}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const videoObj = videos.find(v => v.id === id);
+            if (!videoObj) return;
+
+            if (!videoObj.comments) videoObj.comments = [];
+            videoObj.comments.push({
+                id: Date.now(),
+                text,
+                timestamp: new Date().toISOString()
+            });
+
+            await saveVideoToDB(videoObj);
+            input.value = '';
+            input.nextElementSibling.disabled = true;
+            input.nextElementSibling.classList.remove('enabled');
+            renderVideos();
+        }
+
+        function pauseOtherVideos(currentId) {
+            const allVideos = document.querySelectorAll('video');
+            allVideos.forEach(video => {
+                if (video.id !== `video-${currentId}` && !video.paused) {
+                    video.pause();
+                    const player = video.closest('.video-container');
+                    if (player) {
+                        player.classList.add('hidden');
+                        player.parentElement.querySelector('.thumbnail-container').classList.remove('hidden');
+                    }
+                }
+            });
+        }
+
+        async function deleteVideo(id) {
+            videos = videos.filter(video => video.id !== id);
+            await deleteVideoFromDB(id);
+            viewedVideos.delete(id);
+            likedVideos.delete(id);
+            renderVideos();
+        }
+
+        window.onload = () => {};
+    </script>
+</body>
+</html>
